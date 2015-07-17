@@ -1,0 +1,9 @@
+1. docker@boot2docker:~$ docker run -d --name mysql-data learninglayers/mysql-data
+2. docker@boot2docker:~$ docker run -d -p 3306:3306 -e "MYSQL_ROOT_PASSWORD=password" --volumes-from mysql-data --name mysql learninglayers/mysql
+3. docker@boot2docker:~$ ID_PASS=`docker run --link mysql:mysql learninglayers/mysql-create -ppassword --new-database idgeneration --new-user $idUser | grep "mysql" | awk '{split($0,a," "); print a[3]}' | cut -c3-`
+4. docker@boot2docker:~/dockerFromPc/idGenerating/idGenerating-data$ docker build -t idgeneratingdataimage .
+5. docker@boot2docker:~/dockerFromPc/idGenerating/idGenerating-data$ docker run -d -e "PORT=8082" -e "EPURL=http://localhost:8082/generateid/"  -e "USERNAME=idUser" -e "PASSWORD=$ID_PASS" -e "DATABASE=idgeneration" --name idGeneratingDataContainer idgeneratingdataimage
+6. docker@boot2docker:~/dockerFromPc/idGenerating/idGenerating Service$ docker build -t idgeneratingserviceimage .
+7. docker@boot2docker:~/dockerFromPc/idGenerating/idGenerating Service$ docker run -d --volumes-from idGeneratingDataContainer --link mysql:mysql --name idGenerationServiceContainer idgeneratingserviceimage
+
+======================================================================
